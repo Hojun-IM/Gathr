@@ -2,9 +2,9 @@ package com.nomad.gathr.security.filter
 
 import com.nomad.gathr.config.SecurityConfig
 import com.nomad.gathr.domain.user.dto.CustomUserDetails
-import com.nomad.gathr.domain.user.entity.User
 import com.nomad.gathr.domain.user.service.CustomUserDetailsService
-import com.nomad.gathr.execption.custom.InvalidAccessTokenException
+import com.nomad.gathr.execption.constant.ErrorCode
+import com.nomad.gathr.execption.handler.CustomException
 import com.nomad.gathr.security.service.JwtService
 import com.nomad.gathr.security.util.JwtUtil
 import io.jsonwebtoken.io.IOException
@@ -34,7 +34,7 @@ class JwtAuthenticationFilter(
 
             if (accessToken != null && jwtUtil.validateAccessToken(accessToken)) {
                 if (jwtService.isAccessTokenBlacklisted(accessToken)) {
-                    throw InvalidAccessTokenException()
+                    throw CustomException(ErrorCode.ACCESS_TOKEN_INVALID)
                 }
 
                 val username = jwtUtil.getUsernameFromToken(accessToken)
