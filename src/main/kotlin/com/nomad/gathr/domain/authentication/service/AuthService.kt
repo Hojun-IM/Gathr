@@ -9,18 +9,17 @@ import com.nomad.gathr.domain.user.entity.AuthProvider
 import com.nomad.gathr.domain.user.entity.Role
 import com.nomad.gathr.domain.user.entity.User
 import com.nomad.gathr.domain.user.repository.UserRepository
-import com.nomad.gathr.execption.custom.EmailAlreadyExistsException
-import com.nomad.gathr.execption.custom.UsernameAlreadyExistsException
+import com.nomad.gathr.execption.constant.ErrorCode
+import com.nomad.gathr.execption.handler.CustomException
 import com.nomad.gathr.security.dto.TokenInfo
 import com.nomad.gathr.security.service.JwtService
 import com.nomad.gathr.security.util.JwtGenerator
+import com.nomad.gathr.security.util.JwtUtil
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import javax.security.sasl.AuthenticationException
 
 @Service
 @Transactional(readOnly = true)
@@ -29,6 +28,7 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder,
     private val jwtGenerator: JwtGenerator,
     private val jwtService: JwtService,
+    private val jwtUtil: JwtUtil,
     private val authenticationManager: AuthenticationManager
 ) {
 
@@ -49,36 +49,28 @@ class AuthService(
 
     @Transactional
     fun signIn(signInRequest: SignInRequest): SignInResult {
-        try {
-            val authentication = authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken(signInRequest.username, signInRequest.password)
-            )
-            val user = userRepository.findByUsername(signInRequest.username)
-                .orElseThrow { UsernameNotFoundException("존재하지 않는 아이디: ${signInRequest.username}") }
+        authenticationManager.authenticate(
+            UsernamePasswordAuthenticationToken(signInRequest.username, signInRequest.password)
+        )
+        val user = userRepository.findByUsername(signInRequest.username)
+            .orElseThrow { CustomException(ErrorCode.USER_NOT_FOUND) }
 
-            val accessToken = jwtGenerator.createAccessToken(user)
-            val refreshToken = jwtGenerator.createRefreshToken(user)
+        val accessToken = jwtGenerator.createAccessToken(user)
+        val refreshToken = jwtGenerator.createRefreshToken(user)
 
-            jwtService.storeRefreshToken(user, refreshToken)
+        jwtService.storeRefreshToken(user, refreshToken)
 
-            val signInResponse = SignInResponse(
+        return SignInResult(
+            signInResponse = SignInResponse(
                 username = user.username,
                 email = user.email,
                 role = user.role
-            )
-
-            val tokenInfo = TokenInfo(
+            ),
+            tokenInfo = TokenInfo(
                 accessToken = accessToken,
                 refreshToken = refreshToken
             )
-
-            return SignInResult(
-                signInResponse = signInResponse,
-                tokenInfo = tokenInfo
-            )
-        } catch (e: org.springframework.security.core.AuthenticationException) {
-            throw AuthenticationException("아이디 또는 비밀번호가 일치하지 않습니다.")
-        }
+        )
     }
 
     @Transactional
@@ -86,17 +78,34 @@ class AuthService(
         jwtService.invalidateToken(accessToken, refreshToken, user)
     }
 
+    @Transactional
+    fun refreshAccessToken(refreshToken: String): String {
+        if (!jwtUtil.validateRefreshToken(refreshToken)) {
+            throw CustomException(ErrorCode.REFRESH_TOKEN_INVALID)
+        }
+
+        val username = jwtUtil.getUsernameFromToken(refreshToken)
+        val user = userRepository.findByUsername(username)
+            .orElseThrow { CustomException(ErrorCode.USER_NOT_FOUND) }
+
+        if (!jwtService.isRefreshTokenValid(user.id.toString(), refreshToken)) {
+            throw CustomException(ErrorCode.REFRESH_TOKEN_NOT_MATCHED)
+        }
+
+        return jwtGenerator.createAccessToken(user)
+    }
+
     fun loadUserByUsername(username: String): User {
         return userRepository.findByUsername(username)
-            .orElseThrow { UsernameNotFoundException("사용자를 찾을 수 없습니다: $username") }
+            .orElseThrow { CustomException(ErrorCode.USER_NOT_FOUND) }
     }
 
     private fun validateSignUpRequest(signUpRequest: SignUpRequest) {
         if (userRepository.findByUsername(signUpRequest.username).isPresent) {
-            throw UsernameAlreadyExistsException()
+            throw CustomException(ErrorCode.USERNAME_DUPLICATION)
         }
         if (userRepository.findByEmail(signUpRequest.email).isPresent) {
-            throw EmailAlreadyExistsException()
+            throw CustomException(ErrorCode.EMAIL_DUPLICATION)
         }
     }
 }

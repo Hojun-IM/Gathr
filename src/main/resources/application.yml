@@ -23,6 +23,22 @@ spring:
       host: url
       port: 0
 
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000 # 10분
+
+cloud:
+  aws:
+    bucket: bucket
+    stack:
+      auto: false
+    region:
+      static: region
+    credentials:
+      accessKey: accessKey
+      secretKey: secretKey
+
 security:
   jwt:
     secret-key: secretKey

@@ -6,7 +6,8 @@ import com.nomad.gathr.domain.authentication.dto.SignInResponse
 import com.nomad.gathr.domain.authentication.dto.SignInResult
 import com.nomad.gathr.domain.authentication.dto.SignUpRequest
 import com.nomad.gathr.domain.authentication.service.AuthService
-import com.nomad.gathr.security.service.JwtService
+import com.nomad.gathr.execption.constant.ErrorCode
+import com.nomad.gathr.execption.handler.CustomException
 import com.nomad.gathr.security.util.JwtUtil
 import com.nomad.gathr.util.ApiResponseUtil
 import jakarta.servlet.http.HttpServletRequest
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController
 class AuthController(
     private val authService: AuthService,
     private val jwtUtil: JwtUtil,
-    private val jwtService: JwtService
 ) {
 
     @PostMapping("/signup")
@@ -57,7 +57,6 @@ class AuthController(
             val user = authService.loadUserByUsername(username)
             authService.signOut(user, accessToken, refreshToken)
 
-            // Refresh Token 쿠키 삭제
             jwtUtil.expireRefreshTokenCookie(response)
         }
 
@@ -70,27 +69,15 @@ class AuthController(
 
     @PostMapping("/token/refresh")
     fun refreshAccessToken(request: HttpServletRequest, response: HttpServletResponse): ApiResponse<Nothing> {
-        val refreshToken = jwtUtil.resolveRefreshTokenFromCookie(request).orElse(null)
-        if (refreshToken != null && jwtUtil.validateRefreshToken(refreshToken)) {
-            val username = jwtUtil.getUsernameFromToken(refreshToken)
-            val user = authService.loadUserByUsername(username)
+        val refreshToken = jwtUtil.resolveRefreshTokenFromCookie(request)
+            .orElseThrow { CustomException(ErrorCode.REFRESH_TOKEN_NOT_FOUND) }
 
-            // Refresh Token 검증
-            if (jwtService.isRefreshTokenValid(username, refreshToken)) {
-                val newAccessToken = jwtService.reissueAccessToken(refreshToken, user)
-                jwtUtil.addAccessTokenToResponse(response, newAccessToken)
+        val newAccessToken = authService.refreshAccessToken(refreshToken)
+        jwtUtil.addAccessTokenToResponse(response, newAccessToken)
 
-                // 새로운 Refresh Token을 발급하려면 아래 주석을 해제하고 새로운 Refresh Token을 생성 및 저장해야 합니다.
-                // val newRefreshToken = jwtGenerator.createRefreshToken(user)
-                // jwtService.storeRefreshToken(user, newRefreshToken)
-                // jwtUtil.addRefreshTokenToCookie(response, newRefreshToken)
-
-                return ApiResponseUtil.success(
-                    data = null,
-                    message = "인증 토큰이 갱신되었습니다."
-                )
-            }
-        }
-        return ApiResponseUtil.fail("재발급 토큰이 유효하지 않습니다.", 401)
+        return ApiResponseUtil.success(
+            data = null,
+            message = "인증 토큰이 갱신되었습니다."
+        )
     }
 }

@@ -1,6 +1,5 @@
 package com.nomad.gathr.config
 
-import com.nomad.gathr.domain.authentication.service.AuthService
 import com.nomad.gathr.domain.user.service.CustomUserDetailsService
 import com.nomad.gathr.security.filter.JwtAuthenticationFilter
 import com.nomad.gathr.security.handler.JwtAccessDeniedHandler
@@ -24,14 +23,13 @@ class SecurityConfig(
     private val customUserDetailsService: CustomUserDetailsService,
     private val jwtService: JwtService,
     private val jwtUtil: JwtUtil,
-    private val accessDeniedHandler: JwtAccessDeniedHandler
-
+    private val accessDeniedHandler: JwtAccessDeniedHandler,
 ) {
 
     companion object {
         val  PERMITTED_URLS = arrayOf(
             "/api/v1/auth/**",
-            "/api/login"
+            "/api/v1/auth/login"
         )
 
         val PERMITTED_ROLES = arrayOf(

@@ -30,4 +30,13 @@ object ApiResponseUtil {
             data = null
         )
     }
+
+    fun customFail(message: String, code: Int): ApiResponse<Nothing> {
+        return ApiResponse(
+            status = "FAIL",
+            code = code,
+            message = message,
+            data = null
+        )
+    }
 }

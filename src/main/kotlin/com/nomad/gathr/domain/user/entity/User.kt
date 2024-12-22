@@ -1,5 +1,9 @@
 package com.nomad.gathr.domain.user.entity
 
+import com.nomad.gathr.common.entity.BaseEntity
+import com.nomad.gathr.domain.recruitment.entity.Application
+import com.nomad.gathr.domain.recruitment.entity.Participant
+import com.nomad.gathr.domain.recruitment.entity.Recruitment
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -47,9 +51,38 @@ class User(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    var provider: AuthProvider = AuthProvider.LOCAL,
+    val provider: AuthProvider = AuthProvider.LOCAL,
 
-) {
+    @OneToMany(mappedBy = "creator", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var createdRecruitments: MutableList<Recruitment> = mutableListOf(),
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var participations: MutableList<Participant> = mutableListOf(),
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var applications: MutableList<Application> = mutableListOf()
+) : BaseEntity() {
+
+    fun updateName(newName: String) {
+        if (newName.isBlank()) {
+            throw IllegalArgumentException("이름은 비어있을 수 없습니다.")
+        }
+        name = newName
+    }
+
+    fun updateBio(newBio: String?) {
+        if (newBio != null && newBio.length > 500) {
+            throw IllegalArgumentException("Bio는 최대 500자까지 가능합니다.")
+        }
+        bio = newBio
+    }
+
+    fun updateProfileImageUrl(newProfileImageUrl: String) {
+        if (newProfileImageUrl.isBlank()) {
+            throw IllegalArgumentException("이미지가 정상적으로 업로드되지 않았습니다.")
+        }
+        profileImageUrl = newProfileImageUrl
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
