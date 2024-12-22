@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails
 class CustomUserDetails(
     private val user: User
 ) : UserDetails {
+    val id: Long = user.id!!
 
     override fun getUsername(): String = user.username
     override fun getPassword(): String = user.password
