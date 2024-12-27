@@ -23,7 +23,7 @@ class ProjectRecruitmentController(
     fun getProjectRecruitment(
         @PathVariable id: Long
     ): ApiResponse<ProjectResponse> {
-        val response = ProjectRecruitmentService.getRecruitment(id)
+        val response = projectRecruitmentService.getRecruitment(id)
         return ApiResponseUtil.success(response)
     }
 
@@ -36,7 +36,7 @@ class ProjectRecruitmentController(
         @RequestParam(required = false) locationType: String?,
         pageable: Pageable
     ): ApiResponse<Page<ProjectResponse>> {
-        val response = ProjectRecruitmentService.getRecruitments(
+        val response = projectRecruitmentService.getRecruitments(
             title = title,
             status = status,
             startDate = startDate,
@@ -53,7 +53,7 @@ class ProjectRecruitmentController(
         authentication: Authentication
     ) : ApiResponse<ProjectResponse> {
         val userId = (authentication.principal as CustomUserDetails).id
-        val response = ProjectRecruitmentService.createRecruitment(userId, request)
+        val response = projectRecruitmentService.createRecruitment(userId, request)
         return ApiResponseUtil.success(response)
     }
 
@@ -64,7 +64,7 @@ class ProjectRecruitmentController(
         authentication: Authentication
     ): ApiResponse<ProjectResponse> {
         val userId = (authentication.principal as CustomUserDetails).id
-        val response = ProjectRecruitmentService.updateRecruitment(userId, id, request)
+        val response = projectRecruitmentService.updateRecruitment(userId, id, request)
         return ApiResponseUtil.success(response)
     }
 
@@ -74,7 +74,7 @@ class ProjectRecruitmentController(
         authentication: Authentication
     ): ApiResponse<ProjectResponse> {
         val userId = (authentication.principal as CustomUserDetails).id
-        val response = ProjectRecruitmentService.deleteRecruitment(userId, id)
+        val response = projectRecruitmentService.deleteRecruitment(userId, id)
         return ApiResponseUtil.success(response)
     }
 
@@ -84,7 +84,7 @@ class ProjectRecruitmentController(
         authentication: Authentication
     ): ApiResponse<ProjectResponse> {
         val userId = (authentication.principal as CustomUserDetails).id
-        val response = ProjectRecruitmentService.closeRecruitment(userId, id)
+        val response = projectRecruitmentService.closeRecruitment(userId, id)
         return ApiResponseUtil.success(response)
     }
 
@@ -94,7 +94,7 @@ class ProjectRecruitmentController(
         authentication: Authentication
     ): ApiResponse<ProjectResponse> {
         val userId = (authentication.principal as CustomUserDetails).id
-        val response = ProjectRecruitmentService.openRecruitment(userId, id)
+        val response = projectRecruitmentService.openRecruitment(userId, id)
         return ApiResponseUtil.success(response)
     }
 }
