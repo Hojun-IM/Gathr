@@ -11,7 +11,7 @@ enum class ErrorCode(
     ENTITY_NOT_FOUND("COMMON", 400, "해당 엔티티를 찾을 수 없습니다."),
     INTERNAL_SERVER_ERROR("COMMON", 500, "서버에 오류가 발생했습니다."),
     INVALID_TYPE_VALUE("COMMON", 400, "타입이 일치하지 않습니다."),
-    HANDLE_ACCESS_DENIED("COMMON", 403, "권한이 없습니다."),
+    UNAUTHORIZED("COMMON", 403, "권한이 없습니다."),
 
     // User
     USERNAME_DUPLICATION("USER", 400, "이미 사용중인 아이디입니다."),
@@ -31,4 +31,11 @@ enum class ErrorCode(
     SIGNOUT_FAILED("USER", 400, "로그아웃에 실패했습니다."),
     PASSWORD_CHANGE_REQUIRED("USER", 400, "비밀번호 변경이 필요합니다."),
     PASSWORD_CHANGE_FAILED("USER", 400, "비밀번호 변경에 실패했습니다."),
+
+    // Recruitment
+    RECRUITMENT_NOT_FOUND("RECRUITMENT", 400, "모집을 찾을 수 없습니다."),
+    RECRUITMENT_CLOSED("RECRUITMENT", 400, "모집이 종료되었습니다."),
+    RECRUITMENT_OPENED("RECRUITMENT", 400, "모집이 열려있습니다."),
+    RECRUITMENT_DATE_INVALID("RECRUITMENT", 400, "모집 날짜가 유효하지 않습니다."),
+    RECRUITMENT_PARTICIPANT_MAX("RECRUITMENT", 400, "모집 인원이 초과되었습니다."),
 }
