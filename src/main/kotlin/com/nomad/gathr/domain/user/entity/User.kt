@@ -1,8 +1,8 @@
 package com.nomad.gathr.domain.user.entity
 
 import com.nomad.gathr.common.entity.BaseEntity
-import com.nomad.gathr.domain.recruitment.entity.Application
-import com.nomad.gathr.domain.recruitment.entity.Participant
+import com.nomad.gathr.domain.application.entity.Application
+import com.nomad.gathr.domain.participant.entity.Participant
 import com.nomad.gathr.domain.recruitment.entity.Recruitment
 import jakarta.persistence.*
 import java.time.LocalDateTime
