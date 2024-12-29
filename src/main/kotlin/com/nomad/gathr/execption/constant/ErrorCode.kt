@@ -38,4 +38,8 @@ enum class ErrorCode(
     RECRUITMENT_OPENED("RECRUITMENT", 400, "모집이 열려있습니다."),
     RECRUITMENT_DATE_INVALID("RECRUITMENT", 400, "모집 날짜가 유효하지 않습니다."),
     RECRUITMENT_PARTICIPANT_MAX("RECRUITMENT", 400, "모집 인원이 초과되었습니다."),
+
+    // Application
+    APPLICATION_NOT_FOUND("APPLICATION", 400, "지원서를 찾을 수 없습니다."),
+    INVALID_STATUS_CHANGE("APPLICATION", 400, "이미 처리된 지원서는 상태를 변경할 수 없습니다."),
 }
