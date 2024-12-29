@@ -1,8 +1,6 @@
 package com.nomad.gathr.domain.recruitment.service
 
 import com.nomad.gathr.domain.recruitment.dto.request.ProjectRequest
-import com.nomad.gathr.domain.recruitment.dto.request.ProjectRequest
-import com.nomad.gathr.domain.recruitment.dto.response.ProjectResponse
 import com.nomad.gathr.domain.recruitment.dto.response.ProjectResponse
 import com.nomad.gathr.domain.recruitment.entity.RecruitmentStatus
 import com.nomad.gathr.domain.recruitment.mapper.ProjectRecruitmentMapper
